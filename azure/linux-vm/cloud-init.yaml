@@ -1,0 +1,65 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - nginx
+  - htop
+  - curl
+  - wget
+  - unzip
+
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <title>Welcome to ${project_name}</title>
+          <style>
+              body { font-family: Arial, sans-serif; margin: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+              .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+              .header { background: #0078d4; color: white; padding: 30px; border-radius: 10px 10px 0 0; }
+              .content { padding: 30px; }
+              .info { background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #0078d4; }
+              .azure-logo { color: #0078d4; font-size: 2em; }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1><span class="azure-logo">☁️</span> Welcome to ${project_name}</h1>
+                  <p>Deployed on Azure with OpenTofu via Itential Automation Gateway</p>
+              </div>
+              <div class="content">
+                  <div class="info">
+                      <h3>🖥️ Virtual Machine Information</h3>
+                      <p><strong>Environment:</strong> ${environment}</p>
+                      <p><strong>Cloud Provider:</strong> Microsoft Azure</p>
+                      <p><strong>Operating System:</strong> Ubuntu 22.04 LTS</p>
+                      <p><strong>Deployed:</strong> $(date)</p>
+                  </div>
+                  <div class="info">
+                      <h3>✅ System Status</h3>
+                      <p>✅ Nginx web server is running</p>
+                      <p>✅ VM provisioned via Infrastructure as Code</p>
+                      <p>✅ Network security groups configured</p>
+                      <p>✅ Azure Virtual Network established</p>
+                  </div>
+                  <div class="info">
+                      <h3>🔧 Services Running</h3>
+                      <p>• Nginx Web Server</p>
+                      <p>• SSH Daemon</p>
+                      <p>• Cloud-init Configuration</p>
+                  </div>
+              </div>
+          </div>
+      </body>
+      </html>
+    permissions: '0644'
+
+runcmd:
+  - systemctl start nginx
+  - systemctl enable nginx
+  - ufw allow 'Nginx Full'
+  - ufw allow ssh
+  - ufw --force enable
+  - echo "Azure VM setup completed successfully!" > /var/log/custom-setup.log

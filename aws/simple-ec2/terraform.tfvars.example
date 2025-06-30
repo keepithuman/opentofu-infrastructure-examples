@@ -1,0 +1,32 @@
+# Example variable values for the simple EC2 deployment
+# Copy this file to terraform.tfvars and customize as needed
+
+# AWS Configuration
+aws_region = "us-west-2"
+
+# Project Settings
+project_name = "my-web-app"
+environment  = "dev"
+
+# Instance Configuration
+instance_type     = "t3.micro"      # Free tier eligible
+root_volume_size  = 20              # GB
+create_elastic_ip = false           # Set to true for static IP
+
+# Security Settings  
+# WARNING: Restrict SSH access in production environments
+allowed_ssh_cidr = ["10.0.0.0/8"]   # Replace with your IP range
+
+# Key Pair (optional - create in AWS console first)
+# key_pair_name = "my-key-pair"      # Uncomment and set your key pair name
+
+# Resource Tags
+common_tags = {
+  Environment   = "dev"
+  Project      = "my-web-app"
+  ManagedBy    = "OpenTofu"
+  Owner        = "DevOps-Team"
+  Department   = "Engineering"
+  CostCenter   = "Engineering-001"
+  CreatedDate  = "2025-06-30"
+}

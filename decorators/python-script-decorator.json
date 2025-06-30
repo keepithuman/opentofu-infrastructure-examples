@@ -1,0 +1,439 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Python Script Automation",
+  "description": "Input validation and parameter schema for Python script automation services",
+  "type": "object",
+  "properties": {
+    "script_config": {
+      "type": "object",
+      "title": "Script Configuration",
+      "description": "Python script execution settings",
+      "properties": {
+        "script_name": {
+          "type": "string",
+          "title": "Script Name",
+          "description": "Name of the Python script to execute",
+          "pattern": "^[a-zA-Z0-9_-]+\\.py$",
+          "examples": ["main.py", "data_processor.py", "automation_script.py"],
+          "default": "main.py"
+        },
+        "script_description": {
+          "type": "string",
+          "title": "Script Description",
+          "description": "Brief description of what the script does",
+          "maxLength": 200,
+          "examples": ["Data processing automation", "System monitoring script", "API integration tool"]
+        },
+        "python_version": {
+          "type": "string",
+          "title": "Python Version",
+          "description": "Required Python version",
+          "enum": ["3.8", "3.9", "3.10", "3.11", "3.12"],
+          "default": "3.11"
+        },
+        "working_directory": {
+          "type": "string",
+          "title": "Working Directory",
+          "description": "Directory to execute the script from",
+          "examples": ["/opt/scripts", "/app", "./scripts"],
+          "default": "./"
+        },
+        "virtual_environment": {
+          "type": "string",
+          "title": "Virtual Environment",
+          "description": "Path to Python virtual environment (optional)",
+          "examples": ["/opt/venv", "./venv", "/app/.venv"]
+        }
+      },
+      "required": ["script_name"],
+      "additionalProperties": false
+    },
+    "execution_parameters": {
+      "type": "object",
+      "title": "Execution Parameters",
+      "description": "Script execution and runtime configuration",
+      "properties": {
+        "command_line_args": {
+          "type": "array",
+          "title": "Command Line Arguments",
+          "description": "Arguments to pass to the Python script",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["--config", "/path/to/config.json"], ["--verbose", "--dry-run"]]
+        },
+        "environment_variables": {
+          "type": "object",
+          "title": "Environment Variables",
+          "description": "Environment variables to set for script execution",
+          "patternProperties": {
+            "^[A-Z_][A-Z0-9_]*$": {
+              "type": "string"
+            }
+          },
+          "examples": [
+            {
+              "API_KEY": "your-api-key",
+              "LOG_LEVEL": "INFO",
+              "DATABASE_URL": "postgresql://localhost/mydb"
+            }
+          ]
+        },
+        "timeout_minutes": {
+          "type": "integer",
+          "title": "Execution Timeout (Minutes)",
+          "description": "Maximum time to allow for script execution",
+          "minimum": 1,
+          "maximum": 480,
+          "default": 30
+        },
+        "retry_count": {
+          "type": "integer",
+          "title": "Retry Count",
+          "description": "Number of retries on script failure",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 0
+        },
+        "retry_delay_seconds": {
+          "type": "integer",
+          "title": "Retry Delay (Seconds)",
+          "description": "Delay between retry attempts",
+          "minimum": 1,
+          "maximum": 300,
+          "default": 30
+        }
+      },
+      "additionalProperties": false
+    },
+    "data_config": {
+      "type": "object",
+      "title": "Data Configuration",
+      "description": "Input and output data handling",
+      "properties": {
+        "input_sources": {
+          "type": "array",
+          "title": "Input Data Sources",
+          "description": "Data sources for the script",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["file", "database", "api", "s3", "azure_blob", "gcs"]
+              },
+              "path": {
+                "type": "string",
+                "description": "Path, URL, or connection string"
+              },
+              "format": {
+                "type": "string",
+                "enum": ["json", "csv", "xlsx", "xml", "parquet", "yaml"]
+              }
+            },
+            "required": ["type", "path"]
+          }
+        },
+        "output_destinations": {
+          "type": "array",
+          "title": "Output Destinations",
+          "description": "Where to store script outputs",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["file", "database", "api", "s3", "azure_blob", "gcs", "email"]
+              },
+              "path": {
+                "type": "string",
+                "description": "Destination path, URL, or connection string"
+              },
+              "format": {
+                "type": "string",
+                "enum": ["json", "csv", "xlsx", "xml", "parquet", "yaml", "html", "pdf"]
+              }
+            },
+            "required": ["type", "path"]
+          }
+        },
+        "data_validation": {
+          "type": "boolean",
+          "title": "Enable Data Validation",
+          "description": "Validate input and output data formats",
+          "default": true
+        },
+        "backup_data": {
+          "type": "boolean",
+          "title": "Backup Data",
+          "description": "Create backups of processed data",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "logging_config": {
+      "type": "object",
+      "title": "Logging Configuration",
+      "description": "Script logging and monitoring settings",
+      "properties": {
+        "log_level": {
+          "type": "string",
+          "title": "Log Level",
+          "description": "Logging verbosity level",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+          "default": "INFO"
+        },
+        "log_format": {
+          "type": "string",
+          "title": "Log Format",
+          "description": "Log output format",
+          "enum": ["text", "json", "structured"],
+          "default": "text"
+        },
+        "log_destination": {
+          "type": "string",
+          "title": "Log Destination",
+          "description": "Where to store log files",
+          "enum": ["console", "file", "syslog", "cloudwatch", "azure_logs"],
+          "default": "console"
+        },
+        "log_file_path": {
+          "type": "string",
+          "title": "Log File Path",
+          "description": "Path for log file (if log_destination is 'file')",
+          "examples": ["/var/log/script.log", "./logs/execution.log"]
+        },
+        "max_log_size_mb": {
+          "type": "integer",
+          "title": "Max Log Size (MB)",
+          "description": "Maximum log file size before rotation",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 10
+        },
+        "log_retention_days": {
+          "type": "integer",
+          "title": "Log Retention (Days)",
+          "description": "How long to keep log files",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 30
+        }
+      },
+      "additionalProperties": false
+    },
+    "monitoring_config": {
+      "type": "object",
+      "title": "Monitoring Configuration",
+      "description": "Script monitoring and alerting settings",
+      "properties": {
+        "enable_monitoring": {
+          "type": "boolean",
+          "title": "Enable Monitoring",
+          "description": "Enable script performance monitoring",
+          "default": true
+        },
+        "metrics_collection": {
+          "type": "array",
+          "title": "Metrics to Collect",
+          "description": "Performance metrics to track",
+          "items": {
+            "type": "string",
+            "enum": ["execution_time", "memory_usage", "cpu_usage", "disk_io", "network_io", "error_count", "success_rate"]
+          },
+          "default": ["execution_time", "memory_usage", "error_count"]
+        },
+        "performance_thresholds": {
+          "type": "object",
+          "title": "Performance Thresholds",
+          "properties": {
+            "max_execution_minutes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 240,
+              "default": 60
+            },
+            "max_memory_mb": {
+              "type": "integer",
+              "minimum": 64,
+              "maximum": 8192,
+              "default": 512
+            },
+            "max_cpu_percent": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 100,
+              "default": 80
+            }
+          }
+        },
+        "alert_webhooks": {
+          "type": "array",
+          "title": "Alert Webhooks",
+          "description": "URLs for performance and error alerts",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "examples": [["https://hooks.slack.com/services/...", "https://api.pagerduty.com/..."]]
+        }
+      },
+      "additionalProperties": false
+    },
+    "security_config": {
+      "type": "object",
+      "title": "Security Configuration",
+      "description": "Security and access control settings",
+      "properties": {
+        "run_as_user": {
+          "type": "string",
+          "title": "Run as User",
+          "description": "System user to run the script as",
+          "examples": ["python-runner", "automation", "service-account"],
+          "default": "python-runner"
+        },
+        "allowed_network_access": {
+          "type": "array",
+          "title": "Allowed Network Access",
+          "description": "Network resources the script can access",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "examples": [["https://api.company.com", "https://database.company.com"]]
+        },
+        "required_permissions": {
+          "type": "array",
+          "title": "Required Permissions",
+          "description": "File system permissions needed",
+          "items": {
+            "type": "string",
+            "enum": ["read_data", "write_data", "read_config", "write_logs", "network_access", "database_access"]
+          },
+          "default": ["read_data", "write_logs"]
+        },
+        "encrypt_sensitive_data": {
+          "type": "boolean",
+          "title": "Encrypt Sensitive Data",
+          "description": "Encrypt sensitive data in logs and outputs",
+          "default": true
+        },
+        "audit_trail": {
+          "type": "boolean",
+          "title": "Enable Audit Trail",
+          "description": "Log all script actions for auditing",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "notification_config": {
+      "type": "object",
+      "title": "Notification Configuration",
+      "description": "Success and failure notification settings",
+      "properties": {
+        "notify_on_success": {
+          "type": "boolean",
+          "title": "Notify on Success",
+          "description": "Send notifications when script completes successfully",
+          "default": false
+        },
+        "notify_on_failure": {
+          "type": "boolean",
+          "title": "Notify on Failure",
+          "description": "Send notifications when script fails",
+          "default": true
+        },
+        "notification_channels": {
+          "type": "array",
+          "title": "Notification Channels",
+          "description": "How to send notifications",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["email", "slack", "teams", "webhook", "sms"]
+              },
+              "destination": {
+                "type": "string",
+                "description": "Email, webhook URL, or phone number"
+              },
+              "severity": {
+                "type": "string",
+                "enum": ["info", "warning", "error", "critical"],
+                "default": "info"
+              }
+            },
+            "required": ["type", "destination"]
+          }
+        },
+        "include_logs_in_notifications": {
+          "type": "boolean",
+          "title": "Include Logs in Notifications",
+          "description": "Attach log excerpts to notifications",
+          "default": false
+        },
+        "notification_template": {
+          "type": "string",
+          "title": "Notification Template",
+          "description": "Custom message template for notifications",
+          "examples": ["Script {script_name} completed with status: {status}"]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["script_config"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "script_config": {
+        "script_name": "data_processor.py",
+        "script_description": "Daily data processing automation",
+        "python_version": "3.11"
+      },
+      "execution_parameters": {
+        "command_line_args": ["--config", "/app/config.json", "--verbose"],
+        "environment_variables": {
+          "LOG_LEVEL": "INFO",
+          "API_KEY": "your-api-key"
+        },
+        "timeout_minutes": 45
+      },
+      "logging_config": {
+        "log_level": "INFO",
+        "log_destination": "file",
+        "log_file_path": "/var/log/data_processor.log"
+      }
+    },
+    {
+      "script_config": {
+        "script_name": "system_monitor.py",
+        "script_description": "System health monitoring script",
+        "python_version": "3.11",
+        "virtual_environment": "/opt/monitoring/venv"
+      },
+      "execution_parameters": {
+        "timeout_minutes": 15,
+        "retry_count": 2
+      },
+      "monitoring_config": {
+        "enable_monitoring": true,
+        "metrics_collection": ["execution_time", "memory_usage", "error_count"],
+        "alert_webhooks": ["https://hooks.slack.com/services/..."]
+      },
+      "notification_config": {
+        "notify_on_failure": true,
+        "notification_channels": [
+          {
+            "type": "email",
+            "destination": "ops-team@company.com",
+            "severity": "error"
+          }
+        ]
+      }
+    }
+  ]
+}
